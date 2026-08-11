@@ -1,23 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define MAX 50
 
+/* Array */
 int portalID[MAX], totalPortal = 0;
 char portalName[MAX][30];
+
+/* Queue */
 int playerQueue[MAX], front = -1, rear = -1;
 
+/* BST Node */
 struct Node
 {
     int id;
-    struct Node *left, *right;
+    struct Node *left;
+    struct Node *right;
 };
 
 struct Node *root = NULL;
 
+/* Display Portals */
 void displayPortals()
 {
     int i;
+
     if (totalPortal == 0)
     {
         printf("No portals available.\n");
@@ -25,10 +33,12 @@ void displayPortals()
     }
 
     printf("\nPortal List\n");
+
     for (i = 0; i < totalPortal; i++)
         printf("%d %s\n", portalID[i], portalName[i]);
 }
 
+/* Insert Portal */
 void insertPortal()
 {
     int id, pos, i;
@@ -42,8 +52,10 @@ void insertPortal()
 
     printf("Portal ID: ");
     scanf("%d", &id);
+
     printf("Portal Name: ");
     scanf("%s", name);
+
     printf("Position (1-%d): ", totalPortal + 1);
     scanf("%d", &pos);
 
@@ -62,9 +74,11 @@ void insertPortal()
     portalID[pos - 1] = id;
     strcpy(portalName[pos - 1], name);
     totalPortal++;
+
     printf("Portal inserted.\n");
 }
 
+/* Delete Portal */
 void deletePortal()
 {
     int pos, i;
@@ -91,9 +105,11 @@ void deletePortal()
     }
 
     totalPortal--;
+
     printf("Portal deleted.\n");
 }
 
+/* Linear Search */
 void linearSearchPortal()
 {
     char name[30];
@@ -114,66 +130,7 @@ void linearSearchPortal()
     printf("Portal not found.\n");
 }
 
-void sortPortal()
-{
-    int i, j, temp;
-    char name[30];
-
-    for (i = 0; i < totalPortal - 1; i++)
-    {
-        for (j = 0; j < totalPortal - i - 1; j++)
-        {
-            if (portalID[j] > portalID[j + 1])
-            {
-                temp = portalID[j];
-                portalID[j] = portalID[j + 1];
-                portalID[j + 1] = temp;
-
-                strcpy(name, portalName[j]);
-                strcpy(portalName[j], portalName[j + 1]);
-                strcpy(portalName[j + 1], name);
-            }
-        }
-    }
-}
-
-void binarySearchPortal()
-{
-    int id, low, high, mid;
-
-    if (totalPortal == 0)
-    {
-        printf("No portal.\n");
-        return;
-    }
-
-    sortPortal();
-
-    printf("Portal ID: ");
-    scanf("%d", &id);
-
-    low = 0;
-    high = totalPortal - 1;
-
-    while (low <= high)
-    {
-        mid = (low + high) / 2;
-
-        if (portalID[mid] == id)
-        {
-            printf("Found portal: %s\n", portalName[mid]);
-            return;
-        }
-
-        if (portalID[mid] < id)
-            low = mid + 1;
-        else
-            high = mid - 1;
-    }
-
-    printf("Portal not found.\n");
-}
-
+/* Enqueue */
 void enqueuePlayer()
 {
     int id;
@@ -191,9 +148,11 @@ void enqueuePlayer()
         front = 0;
 
     playerQueue[++rear] = id;
+
     printf("Player added to queue.\n");
 }
 
+/* Dequeue */
 void dequeuePlayer()
 {
     if (front == -1 || front > rear)
@@ -208,16 +167,19 @@ void dequeuePlayer()
         front = rear = -1;
 }
 
+/* Create BST Node */
 struct Node *createNode(int id)
 {
-    struct Node *temp = malloc(sizeof(struct Node));
+    struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
 
     temp->id = id;
-    temp->left = temp->right = NULL;
+    temp->left = NULL;
+    temp->right = NULL;
 
     return temp;
 }
 
+/* BST Insert */
 struct Node *insertNode(struct Node *node, int id)
 {
     if (node == NULL)
@@ -231,6 +193,7 @@ struct Node *insertNode(struct Node *node, int id)
     return node;
 }
 
+/* BST Search */
 int searchNode(struct Node *node, int id)
 {
     if (node == NULL)
@@ -245,6 +208,7 @@ int searchNode(struct Node *node, int id)
     return searchNode(node->right, id);
 }
 
+/* Inorder Traversal */
 void inorder(struct Node *node)
 {
     if (node == NULL)
@@ -259,19 +223,19 @@ int main()
 {
     int choice = 0, id;
 
-    while (choice != 10)
+    while (choice != 9)
     {
         printf("\n==== Quantum Portal Puzzle Network ====\n");
         printf("1. Insert Portal\n");
         printf("2. Delete Portal\n");
         printf("3. Display Portals\n");
         printf("4. Linear Search Portal\n");
-        printf("5. Binary Search Portal\n");
-        printf("6. Enqueue Player\n");
-        printf("7. Dequeue Player\n");
-        printf("8. Insert Portal Node\n");
-        printf("9. Search Portal Node\n");
-        printf("10. Exit\n");
+        printf("5. Enqueue Player\n");
+        printf("6. Dequeue Player\n");
+        printf("7. Insert Portal Node\n");
+        printf("8. Search Portal Node\n");
+        printf("9. Exit\n");
+
         printf("Choice: ");
         scanf("%d", &choice);
 
@@ -284,22 +248,21 @@ int main()
         else if (choice == 4)
             linearSearchPortal();
         else if (choice == 5)
-            binarySearchPortal();
-        else if (choice == 6)
             enqueuePlayer();
-        else if (choice == 7)
+        else if (choice == 6)
             dequeuePlayer();
-        else if (choice == 8)
+        else if (choice == 7)
         {
             printf("Portal node ID: ");
             scanf("%d", &id);
+
             root = insertNode(root, id);
 
-            printf("Portal network: ");
+            printf("Portal network (Inorder): ");
             inorder(root);
             printf("\n");
         }
-        else if (choice == 9)
+        else if (choice == 8)
         {
             printf("Portal node ID: ");
             scanf("%d", &id);
@@ -309,7 +272,7 @@ int main()
             else
                 printf("Portal node not found.\n");
         }
-        else if (choice == 10)
+        else if (choice == 9)
             printf("Program closed.\n");
         else
             printf("Invalid choice.\n");
