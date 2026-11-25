@@ -1,0 +1,316 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define SIZE 100
+
+/* Data structures */
+typedef struct {
+    int id;
+    char name[SIZE];
+    int roomNo;
+    float feeDue;
+} Student;
+
+typedef struct {
+    int roomNo;
+    int totalBeds;
+    int occupiedBeds;
+} Room;
+
+typedef struct {
+    int studentId;
+    float amount;
+    char date[SIZE];
+} Payment;
+
+typedef struct {
+    int complaintId;
+    int studentId;
+    char description[SIZE];
+    char status[SIZE];
+} Complaint;
+
+typedef struct {
+    int visitorId;
+    int studentId;
+    char visitorName[SIZE];
+    char visitDate[SIZE];
+} Visitor;
+
+typedef struct {
+    int requestId;
+    int studentId;
+    char description[SIZE];
+    char status[SIZE];
+} ServiceRequest;
+
+/* Function declarations */
+int readInt(const char *message);
+float readFloat(const char *message);
+void readText(const char *message, char text[], int size);
+void waitEnter(void);
+int login(void);
+void mainMenu(void);
+void studentMenu(void);
+void roomMenu(void);
+void paymentMenu(void);
+void complaintMenu(void);
+void visitorMenu(void);
+void serviceRequestMenu(void);
+
+int studentExists(int id);
+void addStudent(void);
+void viewStudents(void);
+void addRoom(void);
+void viewRooms(void);
+void viewAvailableBeds(void);
+void allocateRoom(void);
+void reassignRoom(void);
+void addPayment(void);
+void viewPayments(void);
+void viewFeeStatus(void);
+void addComplaint(void);
+void viewComplaints(void);
+void handleComplaint(void);
+void addVisitor(void);
+void viewVisitors(void);
+void addServiceRequest(void);
+void viewServiceRequests(void);
+void handleServiceRequest(void);
+void generateReport(void);
+
+int main(void)
+{
+
+
+    printf("HOSTEL MANAGEMENT SYSTEM\n");
+
+
+    /* Login Option. */
+    while (!login()) {
+        printf("Invalid username or password. Please try again.\n\n");
+    }
+
+    mainMenu();
+    printf("\nThank you for using Hostel Management System.\n");
+    return 0;
+}
+
+/* Input helper functions */
+int readInt(const char *message)
+{
+    char line[SIZE], extra;
+    int value;
+
+    while (1) {
+        printf("%s", message);
+        if (fgets(line, sizeof(line), stdin) != NULL &&
+            sscanf(line, "%d %c", &value, &extra) == 1) {
+            return value;
+        }
+        printf("Please enter a valid whole number.\n");
+    }
+}
+
+float readFloat(const char *message)
+{
+    char line[SIZE], extra;
+    float value;
+
+    while (1) {
+        printf("%s", message);
+        if (fgets(line, sizeof(line), stdin) != NULL &&
+            scanf(line, "%f %c", &value, &extra) == 1 && value >= 0) {
+            return value;
+        }
+        printf("Please enter a valid non-negative amount.\n");
+    }
+}
+
+void readText(const char *message, char text[], int size)
+{
+    size_t length;
+    int ch;
+
+    printf("%s", message);
+    if (fgets(text, size, stdin) == NULL) {
+        text[0] = '\0';
+        return;
+    }
+
+    length = strlen(text);
+    if (length > 0 && text[length - 1] == '\n') {
+        text[length - 1] = '\0';
+    } else {
+        while ((ch = getchar()) != '\n' && ch != EOF) {
+
+        }
+    }
+}
+
+void waitEnter(void)
+{
+    char line[8];
+    printf("\nPress Enter to continue...");
+    fgets(line, sizeof(line), stdin);
+}
+
+/* Login credentials for demonstration: admin / 1234 */
+int login(void)
+{
+    char username[SIZE], password[SIZE];
+
+    readText("Username: ", username, SIZE);
+    readText("Password: ", password, SIZE);
+
+    if (strcmp(username, "admin") == 0 &&
+        strcmp(password, "1234") == 0) {
+        printf("Login successful.\n");
+        return 1;
+    }
+    return 0;
+}
+
+/* Main menu */
+void mainMenu(void)
+{
+    int choice;
+
+    do {
+        printf("1. Student Records\n");
+        printf("2. Room Management\n");
+        printf("3. Payments and Fee Status\n");
+        printf("4. Complaint Management\n");
+        printf("5. Visitor Tracking\n");
+        printf("6. Service Requests\n");
+        printf("7. Generate Report\n");
+        printf("0. Exit\n");
+
+        choice = readInt("Enter your choice: ");
+
+        switch (choice) {
+            case 1: studentMenu(); break;
+            case 2: roomMenu(); break;
+            case 3: paymentMenu(); break;
+            case 4: complaintMenu(); break;
+            case 5: visitorMenu(); break;
+            case 6: serviceRequestMenu(); break;
+            case 7: generateReport(); break;
+            case 0: printf("Logging out...\n"); break;
+            default: printf("Invalid choice.\n");
+        }
+
+        if (choice != 0) {
+            waitEnter();
+        }
+    } while (choice != 0);
+}
+
+void studentMenu(void)
+{
+    int choice;
+    printf("\nSTUDENT RECORDS\n");
+    printf("1. Add student\n2. View students\n");
+    choice = readInt("Choose an option: ");
+
+    if (choice == 1) addStudent();
+    else if (choice == 2) viewStudents();
+    else printf("Invalid choice.\n");
+}
+
+void roomMenu(void)
+{
+    int choice;
+    printf("ROOM MANAGEMENT\n");
+    printf("1. Add room\n2. View rooms\n3. View available beds\n");
+    printf("4. Allocate room\n5. Reassign room\n");
+    choice = readInt("Choose an option: ");
+
+    switch (choice) {
+        case 1: addRoom(); break;
+        case 2: viewRooms(); break;
+        case 3: viewAvailableBeds(); break;
+        case 4: allocateRoom(); break;
+        case 5: reassignRoom(); break;
+        default: printf("Invalid choice.\n");
+    }
+}
+
+void paymentMenu(void)
+{
+    int choice;
+    printf("\n--- PAYMENT MANAGEMENT ---\n");
+    printf("1. Record payment\n2. View payments\n3. View fee status\n");
+    choice = readInt("Choose an option: ");
+
+    switch (choice) {
+        case 1: addPayment(); break;
+        case 2: viewPayments(); break;
+        case 3: viewFeeStatus(); break;
+        default: printf("Invalid choice.\n");
+    }
+}
+
+void complaintMenu(void)
+{
+    int choice;
+    printf("\n--- COMPLAINT MANAGEMENT ---\n");
+    printf("1. Register complaint\n2. View complaints\n3. Handle complaint\n");
+    choice = readInt("Choose an option: ");
+
+    switch (choice) {
+        case 1: addComplaint(); break;
+        case 2: viewComplaints(); break;
+        case 3: handleComplaint(); break;
+        default: printf("Invalid choice.\n");
+    }
+}
+
+void visitorMenu(void)
+{
+    int choice;
+    printf("\n--- VISITOR TRACKING ---\n");
+    printf("1. Record visitor\n2. View visitors\n");
+    choice = readInt("Choose an option: ");
+
+    if (choice == 1) addVisitor();
+    else if (choice == 2) viewVisitors();
+    else printf("Invalid choice.\n");
+}
+
+void serviceRequestMenu(void)
+{
+    int choice;
+    printf(" SERVICE REQUESTS\n");
+    printf("1. Record service request\n2. View service requests\n");
+    printf("3. Update request status\n");
+    choice = readInt("Choose an option: ");
+
+    switch (choice) {
+        case 1: addServiceRequest(); break;
+        case 2: viewServiceRequests(); break;
+        case 3: handleServiceRequest(); break;
+        default: printf("Invalid choice.\n");
+    }
+}
+
+/* Student records file handling */
+int studentExists(int id)
+{
+    FILE *fp = fopen("students.dat", "rb");
+    Student s;
+
+    if (fp == NULL) return 0;
+
+    while (fread(&s, sizeof(Student), 1, fp) == 1) {
+        if (s.id == id) {
+            fclose(fp);
+            return 1;
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
